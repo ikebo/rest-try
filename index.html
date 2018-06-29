@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
+</head>
+<body>
+<div class="todos">
+	<div class="todo-cell">
+		<div class="title">
+			<span class="span-title">title: </span>
+			吃饭
+		</div>
+		<div class="status">
+			<span class="span-status">status: </span>
+			未完成
+		</div>
+	</div>
+</div>
+</body>
+<script>
+
+var log = function() {
+	console.log.apply(console, arguments);
+}
+
+var todoTemplate = function(title, status) {
+	if (status === false) {
+		status = '未完成';
+	} else {
+		status = '已完成';
+	}
+	var t = ` 
+		<div class="title">
+			<span class="span-title">title: </span>
+			${title}
+		</div>
+		<div class="status">
+			<span class="span-status">status: </span>
+			${status}
+		</div>
+	`
+	return t
+}
+
+var getTodos = function(todos) {
+	(function() {
+		for(var i=0; i<todos.length; ++i) {
+			log(todos[i]);
+			var todo = todos[i];
+			var tmp = todoTemplate(todo.title, todo.done);
+			$('.todos').append(tmp);
+		}
+	})();
+
+}
+
+
+$.ajax({
+	url: 'http://127.0.0.1:5000/api/v1/todos',
+	success: function(result) {
+		log(result);
+		getTodos(result.todos);
+	}
+});
+</script>
+</html>
