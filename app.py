@@ -7,17 +7,17 @@ todos = [
 	{
 		'id': 1,
 		'title': '洗衣服',
-		'done': False
+		'status': False
 	},
 	{
 		'id': 2,
 		'title': '做饭',
-		'done': False,
+		'status': False,
 	},
 	{
 		'id': 3,
 		'title': '喝水',
-		'done': True
+		'status': True
 	}
 ]
 

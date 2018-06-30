@@ -3,19 +3,70 @@
 <head>
 	<title></title>
 <script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
+<style>
+
+.container {
+	width: 50%;
+	margin: 0 auto;
+}
+
+.todos {
+	border: 1px solid red;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.todo-cell {
+	border: 1px solid blue;
+	width: 48%;
+	text-align: center;
+	display: inline-block;
+	margin: 2px auto;
+	padding: 3px;
+	font-size: 20px;
+}
+
+.title {
+	background: lightblue;
+	opacity: 0.8;
+}
+
+.status {
+	background: lightyellow;
+	opacity: 0.8;
+}
+
+.cell-control {
+	display: inline-block;
+	position: relative;
+	top: -10px;
+	float: right;
+	color: red;
+	cursor: pointer;
+}
+
+</style>
 </head>
 <body>
+<div class="container">
+
 <div class="todos">
 	<div class="todo-cell">
 		<div class="title">
-			<span class="span-title">title: </span>
-			吃饭
+			<span class="span-title">title: </span> 吃饭
+			<span class="cell-control">x</span>
 		</div>
 		<div class="status">
-			<span class="span-status">status: </span>
-			未完成
+			<span class="span-status">status: </span> 未完成
 		</div>
 	</div>
+</div>
+
+<div class="add-todo">
+	<button id="button-add">添加</button>
+</div>
+
+
 </div>
 </body>
 <script>
@@ -31,13 +82,16 @@ var todoTemplate = function(title, status) {
 		status = '已完成';
 	}
 	var t = ` 
+	    <div class="todo-cell">
 		<div class="title">
 			<span class="span-title">title: </span>
 			${title}
+			<span class="cell-control">x</span>
 		</div>
 		<div class="status">
 			<span class="span-status">status: </span>
 			${status}
+		</div>
 		</div>
 	`
 	return t
@@ -55,7 +109,7 @@ var getTodos = function(todos) {
 
 }
 
-
+// 请求所有的todo
 $.ajax({
 	url: 'http://127.0.0.1:5000/api/v1/todos',
 	success: function(result) {
@@ -63,5 +117,41 @@ $.ajax({
 		getTodos(result.todos);
 	}
 });
+
+//  事件委托
+$('.todos').on('click', '.cell-control', function(event) {
+	log('yes');
+	var cell = $(event.target).closest('.todo-cell');
+	log(cell);
+	cell.remove();
+})
+
+
+var templeteAdd = function() {
+	var t = `
+		<div class="form-control">
+			<input  name="title" placeholder="title" class='add-input' />
+			<input type="submit" value="确定" class='add-submit'>	
+		</div>
+	`
+	return t;
+}
+
+// 添加 todo
+$('#button-add').on('click', function() {
+	var t = templeteAdd();
+	$('.add-todo').append(t);
+})
+
+$('.add-todo').on('click', '.add-submit', function(event) {
+	log('submit');
+	var val = $(event.target).prev().val();
+	var data = {
+		title: val,
+		done: false
+	};
+	log(data);
+})
+
 </script>
 </html>
