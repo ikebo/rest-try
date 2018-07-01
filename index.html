@@ -75,14 +75,14 @@ var log = function() {
 	console.log.apply(console, arguments);
 }
 
-var todoTemplate = function(title, status) {
+var todoTemplate = function(title, status, id) {
 	if (status === false) {
 		status = '未完成';
 	} else {
 		status = '已完成';
 	}
 	var t = ` 
-	    <div class="todo-cell">
+	    <div class="todo-cell" data-id=${id}>
 		<div class="title">
 			<span class="span-title">title: </span>
 			${title}
@@ -102,7 +102,7 @@ var getTodos = function(todos) {
 		for(var i=0; i<todos.length; ++i) {
 			log(todos[i]);
 			var todo = todos[i];
-			var tmp = todoTemplate(todo.title, todo.done);
+			var tmp = todoTemplate(todo.title, todo.done, todo.id);
 			$('.todos').append(tmp);
 		}
 	})();
@@ -111,6 +111,7 @@ var getTodos = function(todos) {
 
 // 请求所有的todo
 $.ajax({
+	type: 'GET',
 	url: 'http://127.0.0.1:5000/api/v1/todos',
 	success: function(result) {
 		log(result);
@@ -146,11 +147,27 @@ $('#button-add').on('click', function() {
 $('.add-todo').on('click', '.add-submit', function(event) {
 	log('submit');
 	var val = $(event.target).prev().val();
+	// var id = $('.todos').children('.todo-cell:last-child').data('id');
+	var id = $('.todo-cell:last').data('id') + 1;
 	var data = {
+		id: id,
 		title: val,
 		done: false
 	};
 	log(data);
+
+	$.ajax({
+		type: 'POST',
+		url: 'http://127.0.0.1:5000/api/v1/todos',
+		data: data,
+		success: function(result) {
+			log('res', result);
+			if(result.error_code === 0) {
+				var t = todoTemplate(data.title, data.done, data.id);
+				$('.todos').append(t);
+			}
+		}
+	});
 })
 
 </script>
