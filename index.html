@@ -123,8 +123,17 @@ $.ajax({
 $('.todos').on('click', '.cell-control', function(event) {
 	log('yes');
 	var cell = $(event.target).closest('.todo-cell');
-	log(cell);
-	cell.remove();
+	var delId = $(cell).data('id');
+	log('delId', delId);
+	$.ajax({
+		type: 'DELETE',
+		url: 'http://127.0.0.1:5000/api/v1/todos/' + String(delId),
+		success: function(result) {
+			log('res', result);
+		}
+	});
+	// log(cell);
+	// cell.remove();
 })
 
 

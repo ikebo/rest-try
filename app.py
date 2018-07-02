@@ -40,5 +40,38 @@ def addTodo():
 	return make_response((jsonify(res), 201, headers))
 
 
+@app.route('/api/v1/todos/<int:delId>', methods=['DELETE', 'OPTIONS'])
+def deleteTodo(delId):
+	headers = {
+		'Content-Type': 'application/json',
+		'Access-Control-Allow-Origin': '*',
+		'Access-Control-Allow-Methods': 'DELETE'
+	}
+  	
+	if request.method == 'OPTIONS':
+		return make_response((jsonify({'message': 'come on!'}), 202, headers))
+
+
+	error_code = 0
+	message = 'delete todo with id ' + str(delId) + ' successfully'
+
+	for todo in todos:
+		if todo['id'] == delId:
+  			todos.remove(todo)
+  			break
+	else:
+  		error_code = 1
+  		message = 'delete todo with id ' + str(delId) + ' failed'
+
+	save(todos)
+
+	res = {
+  		'error_code': error_code,
+  		'message': message
+  	}
+
+	return make_response((jsonify(res), 203, headers))
+
+
 if __name__ == '__main__':
 	app.run(debug=True)
