@@ -24,7 +24,7 @@ def addTodo():
 	todo = {
 		'id': request.form['id'],
 		'title': request.form['title'],
-		'done': request.form['done']
+		'done': False if request.form['done'] == 'false' else True
 	}
 
 	todo['id'] = todos[-1]['id'] + 1
@@ -71,6 +71,48 @@ def deleteTodo(delId):
   	}
 
 	return make_response((jsonify(res), 203, headers))
+
+
+
+@app.route('/api/v1/todo/<int:editId>', methods=['PUT', 'OPTIONS'])
+def editTodo(editId):
+	headers = {
+		'Content-Type': 'application/json',
+		'Access-Control-Allow-Origin': '*',
+		'Access-Control-Allow-Methods': 'PUT'
+	}
+	 	
+	if request.method == 'OPTIONS':
+		return make_response((jsonify({'message': 'come on!'}), 202, headers))
+
+	todo = {
+		'id': editId,
+		'title': request.form['title'],
+		'done': False if request.form['done'] == 'false' else True
+	}
+
+	error_code = 0
+	message = 'edit todo with id ' + str(editId) + ' successfully'
+
+	for index, xtodo in enumerate(todos):
+		if xtodo['id'] == editId:
+			xtodo['title'] = todo['title']
+			xtodo['done'] = todo['done']
+			todos[index] = xtodo
+			break
+	else:
+		error_code = 1
+		message = 'edit todo with id ' + str(editId) + ' failed'
+
+	save(todos)
+
+	res = {
+		'error_code': error_code,
+		'message': message
+	}
+
+	return make_response((jsonify(todo), 202, headers))
+
 
 
 if __name__ == '__main__':

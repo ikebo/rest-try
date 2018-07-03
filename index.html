@@ -39,10 +39,20 @@
 .cell-control {
 	display: inline-block;
 	position: relative;
-	top: -10px;
+	top: -6px;
+	right: -3px;
 	float: right;
-	color: red;
+	padding: 0px;
 	cursor: pointer;
+}
+
+.content {
+	display: inline-block;
+}
+
+img {
+	width: 20px;
+	height: 20px;
 }
 
 </style>
@@ -51,13 +61,16 @@
 <div class="container">
 
 <div class="todos">
-	<div class="todo-cell">
+	<div class="todo-cell" data-id=0 data-status='false'>
 		<div class="title">
-			<span class="span-title">title: </span> 吃饭
-			<span class="cell-control">x</span>
+			<span class="span-title">title: <span class="content" contenteditable="true">吃饭</span></span>
+			<span class="cell-control">
+				<img src="./imgs/edit.png" class="edit-control">
+				<img src="./imgs/cancel.png" class="cancel-control">
+			</span>
 		</div>
 		<div class="status">
-			<span class="span-status">status: </span> 未完成
+			<span class="span-status">status: <span class="status" contenteditable="true">未完成</span></span>
 		</div>
 	</div>
 </div>
@@ -76,21 +89,23 @@ var log = function() {
 }
 
 var todoTemplate = function(title, status, id) {
-	if (status === false) {
-		status = '未完成';
+	var xstatus = null;
+	if (status == false) {
+		xstatus = '未完成';
 	} else {
-		status = '已完成';
+		xstatus = '已完成';
 	}
 	var t = ` 
-	    <div class="todo-cell" data-id=${id}>
+	    <div class="todo-cell" data-id=${id} data-status=${status}>
 		<div class="title">
-			<span class="span-title">title: </span>
-			${title}
-			<span class="cell-control">x</span>
+			<span class="span-title">title: <span class="content" contenteditable="true">${title}</span></span>
+			<span class="cell-control">
+				<img src="./imgs/edit.png" class="edit-control">
+				<img src="./imgs/cancel.png" class="cancel-control">
+			</span>
 		</div>
 		<div class="status">
-			<span class="span-status">status: </span>
-			${status}
+			<span class="span-status">status: <span class="status" contenteditable="true">${xstatus}</span></span>
 		</div>
 		</div>
 	`
@@ -120,7 +135,7 @@ $.ajax({
 });
 
 //  事件委托
-$('.todos').on('click', '.cell-control', function(event) {
+$('.todos').on('click', '.cancel-control', function(event) {
 	log('yes');
 	var cell = $(event.target).closest('.todo-cell');
 	var delId = $(cell).data('id');
@@ -132,8 +147,8 @@ $('.todos').on('click', '.cell-control', function(event) {
 			log('res', result);
 		}
 	});
-	// log(cell);
-	// cell.remove();
+	log(cell);
+	cell.remove();
 })
 
 
@@ -177,6 +192,46 @@ $('.add-todo').on('click', '.add-submit', function(event) {
 			}
 		}
 	});
+	$(event.target).prev().val('');
+})
+
+
+// edit
+$('.todos').on('click', '.edit-control', function(event) {
+	log('edit');
+	var contentSpan = $(event.target).parent().prev().children()
+	var cell = $(event.target).closest('.todo-cell');
+	var editId = $(cell).data('id');
+	var editStatus = $(cell).data('status');
+	var txt = contentSpan.text();
+	contentSpan.text('').focus().text(txt);
+
+	contentSpan.on('keydown', function(event) {
+		if (event.key === "Enter") {
+			contentSpan.blur();
+			var editTitle = contentSpan.text();
+			log(editTitle);
+			// 更新数据
+			if (editTitle != txt) {
+				var data = {
+					id: editId,
+					title: editTitle,
+					done: editStatus
+				}
+				log(data);
+				$.ajax({
+					type: 'PUT',
+					url: 'http://127.0.0.1:5000/api/v1/todo/' + String(editId),
+					data: data,
+					success: function(result) {
+						log(result);
+					}
+				});
+			}
+			event.preventDefault();
+		}
+		
+	})
 })
 
 </script>
